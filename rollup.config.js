@@ -1,9 +1,9 @@
-const fs = require('fs');
-const babel = require('@rollup/plugin-babel').babel;
-const nodeResolve = require('@rollup/plugin-node-resolve').nodeResolve;
-const replace = require('@rollup/plugin-replace');
-const { terser } = require('rollup-plugin-terser');
-const pkg = require('./package.json');
+import fs from 'fs';
+import { babel } from '@rollup/plugin-babel';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import replace from '@rollup/plugin-replace';
+import { terser } from 'rollup-plugin-terser';
+import pkg from './package.json';
 
 const env = process.env.NODE_ENV;
 const event = process.env.npm_lifecycle_event; // build, build:umd, ...
@@ -19,7 +19,7 @@ const commonOutputConfig = {
   exports: 'default',
 };
 
-const config = {
+export default {
   input: 'src/purify.js',
   external: [],
   output: [
@@ -62,5 +62,3 @@ const config = {
     }),
   ],
 };
-
-module.exports = config;
