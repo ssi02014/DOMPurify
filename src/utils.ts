@@ -10,25 +10,32 @@ let { freeze, seal, create } = Object; // eslint-disable-line import/no-mutable-
 let { apply, construct } = typeof Reflect !== 'undefined' && Reflect;
 
 if (!freeze) {
-  freeze = function (x) {
+  freeze = function <T>(x: T): T {
     return x;
   };
 }
 
 if (!seal) {
-  seal = function (x) {
+  seal = function <T>(x: T): T {
     return x;
   };
 }
 
 if (!apply) {
-  apply = function (fun, thisValue, args) {
+  apply = function <T extends (...args: any[]) => any>(
+    fun: T,
+    thisValue: ThisParameterType<T>,
+    ...args: any[]
+  ): ReturnType<T> {
     return fun.apply(thisValue, args);
   };
 }
 
 if (!construct) {
-  construct = function (Func, args) {
+  construct = function <T extends new (...args: any[]) => any>(
+    Func: T,
+    ...args: any[]
+  ): InstanceType<T> {
     return new Func(...args);
   };
 }
@@ -58,7 +65,9 @@ const typeErrorCreate = unconstruct(TypeError);
  * @param func - The function to be wrapped and called.
  * @returns A new function that calls the given function with a specified thisArg and arguments.
  */
-function unapply(func: Function): Function {
+function unapply<T extends (...args: any[]) => any>(
+  func: T
+): (thisArg: ThisParameterType<T>, ...args: any[]) => ReturnType<T> {
   return (thisArg, ...args) => apply(func, thisArg, args);
 }
 
@@ -68,7 +77,9 @@ function unapply(func: Function): Function {
  * @param func - The constructor function to be wrapped and called.
  * @returns A new function that constructs an instance of the given constructor function with the provided arguments.
  */
-function unconstruct(func: Function): Function {
+function unconstruct<T extends new (...args: any[]) => any>(
+  func: T
+): (...args: any[]) => InstanceType<T> {
   return (...args) => construct(func, args);
 }
 
@@ -119,7 +130,7 @@ function addToSet(
  * @param array - The array to be cleaned.
  * @returns The cleaned version of the array
  */
-function cleanArray(array: any[]): any[] {
+function cleanArray<T>(array: T[]): Array<T | null> {
   for (let index = 0; index < array.length; index++) {
     const isPropertyExist = objectHasOwnProperty(array, index);
 

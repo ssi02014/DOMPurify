@@ -1015,7 +1015,7 @@ function createDOMPurify(window: WindowLike = getGlobal()) {
       return;
     }
 
-    arrayForEach(hooks[entryPoint], (hook) => {
+    arrayForEach(hooks[entryPoint], (hook: Hook) => {
       hook.call(DOMPurify, currentNode, data, CONFIG);
     });
   }
@@ -1139,7 +1139,7 @@ function createDOMPurify(window: WindowLike = getGlobal()) {
       /* Get the element's text content */
       content = currentNode.textContent;
 
-      arrayForEach([MUSTACHE_EXPR, ERB_EXPR, TMPLIT_EXPR], (expr) => {
+      arrayForEach([MUSTACHE_EXPR, ERB_EXPR, TMPLIT_EXPR], (expr: RegExp) => {
         content = stringReplace(content, expr, ' ');
       });
 
@@ -1164,7 +1164,11 @@ function createDOMPurify(window: WindowLike = getGlobal()) {
    * @return {Boolean} Returns true if `value` is valid, otherwise false.
    */
   // eslint-disable-next-line complexity
-  const _isValidAttribute = function (lcTag, lcName, value) {
+  const _isValidAttribute = function (
+    lcTag: Lowercase<string>,
+    lcName: Lowercase<string>,
+    value: string
+  ): boolean {
     /* Make sure attribute cannot clobber */
     if (
       SANITIZE_DOM &&
@@ -1260,8 +1264,11 @@ function createDOMPurify(window: WindowLike = getGlobal()) {
    * @param {string} tagName name of the tag of the node to sanitize
    * @returns {boolean} Returns true if the tag name meets the basic criteria for a custom element, otherwise false.
    */
-  const _isBasicCustomElement = function (tagName) {
-    return tagName !== 'annotation-xml' && stringMatch(tagName, CUSTOM_ELEMENT);
+  const _isBasicCustomElement = function (tagName: string): boolean {
+    return (
+      tagName !== 'annotation-xml' &&
+      Boolean(stringMatch(tagName, CUSTOM_ELEMENT))
+    );
   };
 
   /**
@@ -1348,7 +1355,7 @@ function createDOMPurify(window: WindowLike = getGlobal()) {
 
       /* Sanitize attribute content to be template-safe */
       if (SAFE_FOR_TEMPLATES) {
-        arrayForEach([MUSTACHE_EXPR, ERB_EXPR, TMPLIT_EXPR], (expr) => {
+        arrayForEach([MUSTACHE_EXPR, ERB_EXPR, TMPLIT_EXPR], (expr: RegExp) => {
           value = stringReplace(value, expr, ' ');
         });
       }
@@ -1412,7 +1419,7 @@ function createDOMPurify(window: WindowLike = getGlobal()) {
    *
    * @param  {DocumentFragment} fragment to iterate over recursively
    */
-  const _sanitizeShadowDOM = function (fragment) {
+  const _sanitizeShadowDOM = function (fragment: DocumentFragment) {
     let shadowNode = null;
     const shadowIterator = _createNodeIterator(fragment);
 
@@ -1608,7 +1615,7 @@ function createDOMPurify(window: WindowLike = getGlobal()) {
 
     /* Sanitize final string template-safe */
     if (SAFE_FOR_TEMPLATES) {
-      arrayForEach([MUSTACHE_EXPR, ERB_EXPR, TMPLIT_EXPR], (expr) => {
+      arrayForEach([MUSTACHE_EXPR, ERB_EXPR, TMPLIT_EXPR], (expr: RegExp) => {
         serializedHTML = stringReplace(serializedHTML, expr, ' ');
       });
     }
@@ -1639,22 +1646,22 @@ function createDOMPurify(window: WindowLike = getGlobal()) {
     return _isValidAttribute(lcTag, lcName, value);
   };
 
-  DOMPurify.addHook = function (entryPoint, hookFunction) {
+  DOMPurify.addHook = function (entryPoint: HookName, hookFunction: Hook) {
     if (typeof hookFunction !== 'function') {
       return;
     }
 
-    hooks[entryPoint] = hooks[entryPoint] || [];
+    hooks[entryPoint] = hooks[entryPoint] || ([] as Hook[]);
     arrayPush(hooks[entryPoint], hookFunction);
   };
 
-  DOMPurify.removeHook = function (entryPoint) {
+  DOMPurify.removeHook = function (entryPoint: HookName) {
     if (hooks[entryPoint]) {
       return arrayPop(hooks[entryPoint]);
     }
   };
 
-  DOMPurify.removeHooks = function (entryPoint) {
+  DOMPurify.removeHooks = function (entryPoint: HookName) {
     if (hooks[entryPoint]) {
       hooks[entryPoint] = [];
     }
